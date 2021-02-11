@@ -1,20 +1,24 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
+import store from '../src/store';
+import { Provider } from 'react-redux';
 
 // Pages import
 import Login from './view/login';
 import NovoUsuario from './view/usuario-novo';
 import Home from './view/home';
+import UsuarioRecuperarSenha from './view/usuario-recuperar-senha';
 
 function App() {
-  return (
-    <div>
-      <Router>
-        <Route exact path='/' component={Home} />
-        <Route exact path='/novousuario' component={NovoUsuario} />
-        <Route exact path='/login' component={Login} />
-      </Router>
-    </div>
+  return (    
+      <Provider store={store}>
+        <Router>
+          <Route exact path='/' component={Home} />
+          <Route exact path='/novousuario' component={NovoUsuario} />
+          <Route exact path='/login' component={Login} />
+          <Route exact path='/usuariorecuperarsenha' component={UsuarioRecuperarSenha} />
+        </Router>
+      </Provider>    
   );
 }
 
