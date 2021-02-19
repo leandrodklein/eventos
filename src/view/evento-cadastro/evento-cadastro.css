@@ -1,10 +1,10 @@
-.btn-enviar {
-    width: 100%;    
+.btn-cadastro {
+    width: 100%;
     background-color: #3FAA9E;
     color: #fff;
 }
 
-.btn-enviar:hover {
+.btn-cadastro:hover {
     background-color: #bf55ec;
     color: #fff;
 }
