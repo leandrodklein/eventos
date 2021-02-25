@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Archive, Calendar, Clock, Edit, Eye } from 'react-feather';
 import firebase from '../../config/firebase';
 import { useSelector } from 'react-redux';
@@ -12,20 +12,34 @@ export default function EventoDetalhes(props) {
     const [urlImg, setUrlImg] = useState({});
     const usuarioLogado = useSelector(state => state.usuarioEmail);
     const [carregando, setCarregando] = useState(1);
+    const [excluido, setExcluido] = useState(0);
+
+    function remover() {
+        firebase.firestore().collection('eventos').doc(props.match.params.id).delete().then(() => {
+            setExcluido(1);
+        })
+    }
 
     useEffect(() => {
+        if(carregando) {
         firebase.firestore().collection('eventos').doc(props.match.params.id).get().then(resultado => {
             setEvento(resultado.data())
-            firebase.storage().ref(`imagens/${evento.foto}`).getDownloadURL().then(url => {
+            firebase.firestore().collection('eventos').doc(props.match.params.id).update('visualizacoes', resultado.data().visualizacoes + 1)
+            firebase.storage().ref(`imagens/${resultado.data().foto}`).getDownloadURL().then(url => {
                 setUrlImg(url)
                 setCarregando(0);
             });
         });
-    })
+    } else {
+        firebase.storage().ref(`imagens/${evento.foto}`).getDownloadURL().then(url => setUrlImg(url))
+    }
+    },[])
 
     return (
         <>
             <Navbar />
+
+            { excluido ? <Redirect to='/' /> : null }
 
             <div className="container-fluid">
 
@@ -41,7 +55,7 @@ export default function EventoDetalhes(props) {
                         <div className="row">
                             <img src={urlImg} className="img-banner" alt="banner" />
 
-                            <div className="col-12 float-right mt-1 visualizacoes"><Eye /> <span>{evento.visualizacoes}</span></div>
+                            <div className="col-12 mt-1 visualizacoes"><Eye size="30" /> <span>{evento.visualizacoes + 1}</span></div>
                             <h3 className="text-center mt-5 titulo"><strong>{evento.titulo}</strong></h3>
                         </div>
 
@@ -76,11 +90,16 @@ export default function EventoDetalhes(props) {
 
                         {
                             usuarioLogado == evento.usuario ?
-                            <Link to="/" className="btn-editar"><Edit size="40" /></Link>
+                            <Link to={`/editarevento/${props.match.params.id}`} className="btn-editar"><Edit size="40" /></Link>
                             : ''
                         }
 
-                    </div>  
+                        {
+                            usuarioLogado == evento.usuario ? <button onClick={remover} type="button" className="btn btn-lg btn-clock mt-3 mb-5 btn-cadastro">Remover Evento</button>                           
+                            : null
+                        }                        
+
+                    </div>                      
                 } 
             </div>
         </>
